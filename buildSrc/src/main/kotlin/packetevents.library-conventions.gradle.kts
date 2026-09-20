@@ -174,6 +174,18 @@ publishing {
     }
 
     repositories {
+        // BTC Studio unified static Maven repo: committed under BTCVelocity/repo and
+        // uploaded as-is to https://borntocraftstudio.net/public/repo/ , alongside
+        // dev.btc.core:api. Overridable via -PbtcRepoDir so this fork still builds when
+        // BTCVelocity is not checked out next to it.
+        maven {
+            name = "btcRepo"
+            url = uri(
+                providers.gradleProperty("btcRepoDir")
+                    .getOrElse(rootProject.file("../BTCVelocity/repo").absolutePath)
+            )
+        }
+
         maven {
             val snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
             val releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
