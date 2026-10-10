@@ -285,12 +285,15 @@ public class AdventureNBTSerializer implements ComponentSerializer<Component, Co
         } else if (player != null) {
             if (BackwardCompatUtil.IS_4_25_0_OR_NEWER) {
                 ItemProfile profile = ItemProfile.decode(player, wrapper);
-                PlayerHeadObjectContents playerHead = ObjectContents.playerHead()
+                PlayerHeadObjectContents.Builder playerHead = ObjectContents.playerHead()
                         .id(profile.getId()).name(profile.getName())
                         .profileProperties(profile.getAdventureProperties())
-                        .hat(Optional.ofNullable(reader.readBoolean("hat", Function.identity())).orElse(true))
-                        .build();
-                builder = Component.object().contents(playerHead);
+                        .hat(Optional.ofNullable(reader.readBoolean("hat", Function.identity())).orElse(true));
+                Key texture = profile.getAdventureTexture();
+                if (texture != null) {
+                    playerHead.texture(texture);
+                }
+                builder = Component.object().contents(playerHead.build());
             } else {
                 builder = Component.text();
             }

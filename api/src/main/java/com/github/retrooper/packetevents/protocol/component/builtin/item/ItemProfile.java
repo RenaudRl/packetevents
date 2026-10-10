@@ -29,6 +29,7 @@ import com.github.retrooper.packetevents.protocol.util.NbtCodecs;
 import com.github.retrooper.packetevents.protocol.util.NbtMapCodec;
 import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.object.PlayerHeadObjectContents;
 import net.kyori.adventure.text.object.PlayerHeadObjectContents.ProfileProperty;
 import org.jspecify.annotations.NullMarked;
@@ -148,7 +149,24 @@ public final class ItemProfile {
         for (ProfileProperty property : advProps) {
             properties.add(Property.fromAdventure(property));
         }
-        return new ItemProfile(headContents.name(), headContents.id(), properties);
+        // adventure only models the body texture of a skin patch (cape, elytra and model have no
+        // counterpart in PlayerHeadObjectContents), so that is all that can be carried over
+        Key texture = headContents.texture();
+        SkinPatch skinPatch = texture != null
+                ? new SkinPatch(new ResourceLocation(texture), null, null, null)
+                : SkinPatch.EMPTY;
+        return new ItemProfile(headContents.name(), headContents.id(), properties, skinPatch);
+    }
+
+    /**
+     * The body texture of this profile's skin patch, as adventure models it.
+     *
+     * @return the texture, or null if the skin patch does not override it
+     * @versions 1.21.9+
+     */
+    public @Nullable Key getAdventureTexture() {
+        ResourceLocation body = this.skinPatch.getBody();
+        return body != null ? body.key() : null;
     }
 
     public List<ProfileProperty> getAdventureProperties() {
